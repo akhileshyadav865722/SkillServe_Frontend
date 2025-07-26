@@ -1,13 +1,26 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import Home from './Pages/Home';
+import Navbar from './components/Navbar';
+
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* ✅ Set Login as the default route */}
-       <Route path="/" element={<Home />} />
+        {/* Home route with Navbar and ImageSlider */}
+        <Route
+          path="/"
+          element={
+            <>
+              <Navbar />
+              <Home />
+            </>
+          }
+        />
+
+        {/* Login and Register without Navbar/Slider */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
