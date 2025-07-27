@@ -1,48 +1,101 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const [user, setUser] = useState(null);
+  const [showLogout, setShowLogout] = useState(false);
+  const [timeoutId, setTimeoutId] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (err) {
+        console.error("Error parsing user from localStorage", err);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
+  const handleMouseEnter = () => {
+    if (timeoutId) clearTimeout(timeoutId);
+    setShowLogout(true);
+  };
+
+  const handleMouseLeave = () => {
+    const id = setTimeout(() => {
+      setShowLogout(false);
+    }, 3000); // Show for 3 seconds
+    setTimeoutId(id);
+  };
+
+  const handleUsernameClick = () => {
+    navigate('/profile');
+  };
+
   return (
-    <nav className="bg-white shadow-md py-3 px-6 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Logo / Brand */}
-        <Link to="/" className="text-3xl font-bold text-blue-600 tracking-tight">
-          SkillServe
-        </Link>
-
-        {/* Navigation Links */}
-        <div className="hidden md:flex gap-6 text-base font-medium">
-          <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
-            Home
-          </Link>
-          <Link to="/services" className="text-gray-700 hover:text-blue-600 transition">
-            Services
-          </Link>
-          <Link to="/about" className="text-gray-700 hover:text-blue-600 transition">
-            About
-          </Link>
-          <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition">
-            Contact
-          </Link>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <Link
-            to="/login"
-            className="px-4 py-1.5 text-blue-600 font-semibold border border-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition"
+    <div>
+      {/* Logout Dropdown - now FIXED */}
+      {user && (
+        <div
+          className="fixed right-20 top-[61px] z-40"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div
+            className={`transition-all duration-500 ease-in-out ${
+              showLogout ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+            }`}
           >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="px-4 py-1.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
-          >
-            Register
-          </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-5 py-2 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 font-semibold border border-white backdrop-blur-md"
+            >
+              🔓 Logout
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      )}
+
+      {/* Navbar */}
+      <nav className="bg-white shadow-md py-3 px-6 fixed top-0 z-50 w-full">
+        <div className="max-w-7xl mx-auto flex justify-between items-center relative">
+          {/* Brand */}
+          <Link to="/" className="text-3xl font-bold text-blue-600 tracking-tight">
+            SkillServe
+          </Link>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex gap-6 text-base font-medium">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition">Home</Link>
+            <Link to="/services" className="text-gray-700 hover:text-blue-600 transition">Services</Link>
+            <Link to="/about" className="text-gray-700 hover:text-blue-600 transition">About</Link>
+            <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition">Contact</Link>
+          </div>
+
+          {/* Username */}
+          {user && (
+            <div
+              className="cursor-pointer relative"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onClick={handleUsernameClick}
+            >
+              <span className="text-gray-800 font-semibold hover:text-blue-600 transition">
+                {user.name}
+              </span>
+            </div>
+          )}
+        </div>
+      </nav>
+    </div>
   );
 };
 
